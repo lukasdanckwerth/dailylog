@@ -2,7 +2,7 @@
 set -u
 set -e
 
-DL_VERSION=54
+DL_VERSION=55
 DL_DIR="/var/log/dailylog"
 DL_DAILY_FILE="${DL_DIR}/daily.log"
 DL_VERSION_FILE="${DL_DIR}/.version"
@@ -44,8 +44,8 @@ create_dir() {
 
 create_file() {
   [[ -f "${1}" ]] || touch "${1}"
+  sudo chmod 777 "${1}"
   # chown ${dl_user_name}:${dl_user_name} "${file_path}"
-  # sudo chmod 777 "${1}"
 }
 
 recreate_dailylog() {
@@ -64,7 +64,7 @@ print_version() {
   echo -e "dailylog version ${DL_VERSION}"
 
   if [[ "$(remote_version)" == "$(local_version)" ]]; then
-    echo -e "up-to-date"
+    echo -e "Up-to-date"
   else
     echo -e "Updates available. To get the run 'dailylog --update'."
   fi
