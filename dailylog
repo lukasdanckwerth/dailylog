@@ -2,7 +2,7 @@
 set -u
 set -e
 
-DL_VERSION=53
+DL_VERSION=54
 DL_DIR="/var/log/dailylog"
 DL_DAILY_FILE="${DL_DIR}/daily.log"
 DL_VERSION_FILE="${DL_DIR}/.version"

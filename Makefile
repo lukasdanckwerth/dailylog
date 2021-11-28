@@ -22,7 +22,7 @@ endif
 	sudo cp -nf "${DL_ROOT_DIR}/dailylog" /usr/local/bin/dailylog
 
 	echo "[make install]  configure /var/log/dailylog"
-	sudo mkdir /var/log/dailylog
+	sudo mkdir -p /var/log/dailylog
 	sudo chmod 777 /var/log/dailylog
 
 	sudo git rev-parse HEAD >/var/log/dailylog/.version
