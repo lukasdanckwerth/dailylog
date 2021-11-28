@@ -2,7 +2,7 @@
 set -u
 set -e
 
-DL_VERSION=51
+DL_VERSION=52
 DL_DIR="/var/log/dailylog"
 DL_DAILY_FILE="${DL_DIR}/daily.log"
 DL_VERSION_FILE="${DL_DIR}/.version"
@@ -138,8 +138,8 @@ while (($# > 0)); do
     ;;
   --version | -v)
     echo -e "version:      ${DL_VERSION}"
-    echo -e "local hash:    $(local_version)"
-    echo -e "remote hash:    $(remote_version)" && exit 0
+    echo -e "local hash:   $(local_version)"
+    echo -e "remote hash:  $(remote_version)" && exit 0
     ;;
   *)
     DL_ARGUMENTS="${DL_ARGUMENTS} ${opt}"
