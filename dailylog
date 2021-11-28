@@ -2,11 +2,12 @@
 set -u
 set -e
 
-DL_VERSION=48
+DL_VERSION=49
 DL_DIR="/var/log/dailylog"
 DL_DAILY_FILE="${DL_DIR}/daily.log"
 DL_VERSION_FILE="${DL_DIR}/.version"
-ML_GIT_INSTALL_SCRIPT="https://raw.githubusercontent.com/lukasdanckwerth/dailylog/main/install-dailylog.sh"
+DL_GIT_REPO="https://github.com/lukasdanckwerth/dailylog.git"
+DL_GIT_INSTALL_SCRIPT="https://raw.githubusercontent.com/lukasdanckwerth/dailylog/main/install-dailylog.sh"
 
 emph() {
   echo "\033[1m${*}\033[0m"
@@ -21,7 +22,7 @@ die_error() {
 }
 
 remote_version() {
-  git ls-remote "${ML_GIT_REPO}" HEAD | awk '{ print $1}'
+  git ls-remote "${DL_GIT_REPO}" HEAD | awk '{ print $1}'
 }
 
 local_version() {
@@ -56,7 +57,7 @@ show_weekly_log() {
 }
 
 update_dailylog() {
-  sudo /bin/bash -c "$(curl -fsSL "${ML_GIT_INSTALL_SCRIPT}")"
+  sudo /bin/bash -c "$(curl -fsSL "${DL_GIT_INSTALL_SCRIPT}")"
 }
 
 print_help() {
