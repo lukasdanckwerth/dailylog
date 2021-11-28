@@ -3,8 +3,7 @@ set -u
 set -e
 
 DL_GIT_REPO="https://github.com/lukasdanckwerth/dailylog.git"
-DL_DIR="/var/log/dailylog"
-DL_VERSION="${DL_DIR}/.version"
+DL_VERSION="/var/log/dailylog/.version"
 
 log() {
   echo "[install-dailylog.sh]  ${*}"
