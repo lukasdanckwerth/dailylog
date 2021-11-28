@@ -74,10 +74,8 @@ sed -i "s/${DL_CURRENT_TAG}/${DL_NEW_TAG}/g" "${DL_SCRIPT}"
 # cat "${DL_HELP_MESSAGE_TEMP_FILE}"
 # cat "${DL_README2}"
 
-# exit 0
-#
-# git add .
-# git commit -m "version ${DL_NEW_VERSION}"
-# git push
-
 log "new version $(emph "${DL_NEW_VERSION}") (was $(emph "${DL_CURRENT_VERSION}"))" && echo
+
+git add .
+git commit -m "version ${DL_NEW_VERSION}"
+git push

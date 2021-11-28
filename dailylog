@@ -2,7 +2,7 @@
 set -u
 set -e
 
-DL_VERSION=46
+DL_VERSION=48
 DL_DIR="/var/log/dailylog"
 DL_DAILY_FILE="${DL_DIR}/daily.log"
 DL_VERSION_FILE="${DL_DIR}/.version"
@@ -39,7 +39,6 @@ weekly_log_file() {
 create_dir() {
   [[ -d "${1}" ]] || sudo mkdir -p "${1}"
   sudo chmod 777 "${1}"
-  echo "create_dir: ${1}"
 }
 
 create_file() {
@@ -89,8 +88,8 @@ DL_LABEL=""
 DL_LEVEL=""
 DL_ARGUMENTS=""
 
-DL_QUIET=""
-DL_DRY=""
+DL_QUIET="0"
+DL_DRY="0"
 
 while (($# > 0)); do
   opt="${1}"
