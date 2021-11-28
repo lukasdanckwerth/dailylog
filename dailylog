@@ -64,18 +64,18 @@ print_help() {
   echo -e "
 usage: dailylog <text> [<argument>]
 
-    $(emph "--label   | -b") label    The label of the log message.
-    $(emph "--level   | -l") level    The level of the log message.
+    $(emph "--label     | -b") label    The label of the log message.
+    $(emph "--level     | -l") level    The level of the log message.
 
-    $(emph "--l-info    | -li")       Sets the level to INFO.
-    $(emph "--l-warning | -lw")       Sets the level to WARN.
-    $(emph "--l-error   | -le")       Sets the level to ERRO.
+    $(emph "--l-info    | -li")         Sets the level to INFO.
+    $(emph "--l-warning | -lw")         Sets the level to WARN.
+    $(emph "--l-error   | -le")         Sets the level to ERRO.
 
-    $(emph "--remove  | -r")          Removes the dailylog file.
-    $(emph "--week")                  Shows the weekly log.
-    $(emph "--quite   | -q")          Do not print message on console.
-    $(emph "--dry     | -d")          Do not write message to files.
-    $(emph "--help    | -h")          Prints this help and exists.
+    $(emph "--remove    | -r")          Removes the dailylog file.
+    $(emph "--week")                    Shows the weekly log.
+    $(emph "--quite     | -q")          Do not print message on console.
+    $(emph "--dry       | -d")          Do not write message to files.
+    $(emph "--help      | -h")          Prints this help and exists.
 "
 }
 

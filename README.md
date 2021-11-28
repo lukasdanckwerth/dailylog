@@ -7,21 +7,19 @@
 
 usage: dailylog <text> [<argument>]
 
-    --label label    The label of the log message.
-    --level level    The level of the log message.
+    --label     | -b label    The label of the log message.
+    --level     | -l level    The level of the log message.
 
-    --error          Sets the level to ERRO.
-    --warning        Sets the level to WARN.
-    --info           Sets the level to INFO.
-    --error          Sets the level to ERRO.
+    --l-info    | -li         Sets the level to INFO.
+    --l-warning | -lw         Sets the level to WARN.
+    --l-error   | -le         Sets the level to ERRO.
 
-    --remove | -r    Removes the dailylog file.
-    --status | -s    Prints status information about the dailylog infrastructure.
-    --week           Shows the weekly log.
-    --quite          Do not print message on console.
-    --dry            Do not write message to files.
-    --help | -h      Prints this help and exists.
-    
+    --remove    | -r          Removes the dailylog file.
+    --week                    Shows the weekly log.
+    --quite     | -q          Do not print message on console.
+    --dry       | -d          Do not write message to files.
+    --help      | -h          Prints this help and exists.
+
 ```
 [mark-usage-end]::
 
