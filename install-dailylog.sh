@@ -54,12 +54,14 @@ log "Repo URL:      ${DL_GIT_REPO} ..."
 log "Cloning into:  ${DL_TMP_REPO}"
 git clone --quiet "${DL_GIT_REPO}" "${DL_TMP_REPO}"
 
-pushd "${DL_TMP_REPO}" >/dev/null
+pushd "${DL_TMP_REPO}"
 
-log "Install ..."
+log "Install makefile ..."
 sudo make install
 
-popd >/dev/null
+popd
 
 log "Remove ${DL_TMP_REPO}"
 rm -rf "${DL_TMP_REPO}"
+
+echo ""

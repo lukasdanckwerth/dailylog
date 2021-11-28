@@ -2,7 +2,7 @@
 set -u
 set -e
 
-DL_VERSION=54
+DL_VERSION=55
 DL_DIR="/var/log/dailylog"
 DL_DAILY_FILE="${DL_DIR}/daily.log"
 DL_VERSION_FILE="${DL_DIR}/.version"
@@ -59,6 +59,16 @@ show_weekly_log() {
 update_dailylog() {
   sudo /bin/bash -c "$(curl -fsSL "${DL_GIT_INSTALL_SCRIPT}")"
   dailylog --version
+}
+
+print_version() {
+    echo -e "version:      ${DL_VERSION}"
+
+    if [[ "$(remote_version)" == "$(local_version)" ]] ; then
+        echo -e "up-to-date"
+    else
+        echo -e "Updates available. To get the run `dailylog --update`."
+    fi
 }
 
 print_help() {
@@ -137,9 +147,7 @@ while (($# > 0)); do
     update_dailylog && exit 0
     ;;
   --version | -v)
-    echo -e "version:      ${DL_VERSION}"
-    echo -e "local hash:   $(local_version)"
-    echo -e "remote hash:  $(remote_version)" && exit 0
+    print_version && exit 0
     ;;
   *)
     DL_ARGUMENTS="${DL_ARGUMENTS} ${opt}"
