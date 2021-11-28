@@ -2,7 +2,7 @@
 set -u
 set -e
 
-DL_VERSION=52
+DL_VERSION=53
 DL_DIR="/var/log/dailylog"
 DL_DAILY_FILE="${DL_DIR}/daily.log"
 DL_VERSION_FILE="${DL_DIR}/.version"
@@ -134,7 +134,7 @@ while (($# > 0)); do
     print_help && exit 0
     ;;
   --update | -u)
-    print_help && exit 0
+    update_dailylog && exit 0
     ;;
   --version | -v)
     echo -e "version:      ${DL_VERSION}"
