@@ -61,7 +61,7 @@ update_dailylog() {
 }
 
 print_version() {
-  echo -e "version:      ${DL_VERSION}"
+  echo -e "dailylog version ${DL_VERSION}"
 
   if [[ "$(remote_version)" == "$(local_version)" ]]; then
     echo -e "up-to-date"
