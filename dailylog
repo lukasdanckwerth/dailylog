@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+set -u
+set -e
+
+DL_LOG_DIR="/var/log/dailylog"
+
+dl_user_name="pi"
+log_dir="/home/${dl_user_name}/log"
+dailylog_file="${log_dir}/daily.log"
+
+# Guards the existence of at least one argument.
+if [ "${#}" -eq "0" ]; then
+   cat "${dailylog_file}"
+   exit 0
+fi
+
+# ===-----------------------------------------------------------------------===
+#
+# Functions
+# ===-----------------------------------------------------------------------===
+create_dir() {
+	local dir_path="${1}"
+	mkdir -p "${dir_path}"
+	chown ${dl_user_name}:${dl_user_name} "${dir_path}"
+	chmod 777 "${dir_path}"
+}
+
+create_file() {
+	local file_path=${1}
+	[ -f "${file_path}" ] || touch "${file_path}"
+	chown ${dl_user_name}:${dl_user_name} "${file_path}"
+	chmod 777 "${file_path}"
+}
+
+recreate_file() {
+	local file_path=${1}
+	rm -rf "${file_path}"
+	create_file "${file_path}"
+}
+
+weekly_log_file() {
+	local week=$(date +%V)
+	local year=$(date +%Y)
+	local dir_path="${log_dir}/${year}"
+	create_dir "${dir_path}"
+   chmod 777 "${log_dir}/${year}/${year}-${week}.log"
+	echo "${log_dir}/${year}/${year}-${week}.log"
+}
+
+create_dir "${log_dir}"
+
+log_message=""
+while (( $# > 0 ))
+do
+   opt="${1}"; shift
+   case $opt in
+   --label | -b)
+      log_label="${1}"; shift ;;
+   --level | -l)
+		log_level="${1}"; shift ;;
+	--error | -e)
+		log_level="ERRO" ;;
+	--warning | -w)
+		log_level="WARN" ;;
+	--info | -i)
+		log_level="INFO" ;;
+	--remove)
+		recreate_file "${dailylog_file}"; exit 0 ;;
+    *)
+		log_message="${log_message} ${opt}" ;;
+   esac
+done
+
+if [ -n "${log_label}" ]; then
+	log_message="[${log_label}] : ${log_message}"
+fi
+
+if [ -n "${log_level}" ]; then
+	log_message="[${log_level}] : ${log_message}"
+else
+	log_message="[    ] : ${log_message}"
+fi
+
+log_message="$(date '+%Y%m%d %H:%M:%S.%4N') : $log_message"
+
+echo "${log_message}"
+echo "${log_message}" >> "${log_dir}/daily.log"
+echo "${log_message}" >> "$(weekly_log_file)"
