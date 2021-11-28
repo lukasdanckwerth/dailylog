@@ -58,7 +58,6 @@ show_weekly_log() {
 
 update_dailylog() {
   sudo /bin/bash -c "$(curl -fsSL "${DL_GIT_INSTALL_SCRIPT}")"
-  dailylog --version
 }
 
 print_version() {
@@ -67,7 +66,7 @@ print_version() {
   if [[ "$(remote_version)" == "$(local_version)" ]]; then
     echo -e "up-to-date"
   else
-    echo -e "Updates available. To get the run $(dailylog --update)."
+    echo -e "Updates available. To get the run 'dailylog --update'."
   fi
 }
 
