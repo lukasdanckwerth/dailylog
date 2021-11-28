@@ -2,9 +2,11 @@
 set -u
 set -e
 
-DL_VERSION=25
+DL_VERSION=26
 DL_DIR="/var/log/dailylog"
 DL_DAILY_FILE="${DL_DIR}/daily.log"
+DL_VERSION_FILE="${DL_DIR}/.version"
+ML_GIT_INSTALL_SCRIPT="https://raw.githubusercontent.com/lukasdanckwerth/dailylog/main/install-dailylog.sh"
 
 emph() {
   echo "\033[1m${*}\033[0m"
@@ -16,6 +18,14 @@ die() {
 
 die_error() {
   echo "" && echo -e "$(emph "ERROR:") ${*}" && echo "" && exit 0
+}
+
+remote_version() {
+  git ls-remote "${ML_GIT_REPO}" HEAD | awk '{ print $1}'
+}
+
+local_version() {
+  if [[ -f "${DL_VERSION_FILE}" ]]; then echo "$(cat "${DL_VERSION_FILE}")"; else echo ""; fi
 }
 
 year_dir() {
@@ -44,6 +54,14 @@ recreate_dailylog() {
 
 show_weekly_log() {
   local LOG_FILE="$(weekly_log_file)" && echo -e "${LOG_FILE}\n" && tail "${LOG_FILE}"
+}
+
+update_dailylog() {
+  sudo /bin/bash -c "$(curl -fsSL "${ML_GIT_INSTALL_SCRIPT}")"
+}
+
+print_status() {
+
 }
 
 print_help() {
@@ -123,6 +141,11 @@ while (($# > 0)); do
   --status | -s)
     print_status && exit 0
     ;;
+  --version | -v)
+    echo -e "version:      ${DL_VERSION}"
+    echo -e "local hash:    $(local_version)"
+    echo -e "remote hash:    $(remote_version)" && exit 0
+      ;;
   *)
     DL_ARGUMENTS="${DL_ARGUMENTS} ${opt}"
     ;;
