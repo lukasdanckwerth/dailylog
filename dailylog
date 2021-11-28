@@ -2,7 +2,7 @@
 set -u
 set -e
 
-DL_VERSION=44
+DL_VERSION=46
 DL_DIR="/var/log/dailylog"
 DL_DAILY_FILE="${DL_DIR}/daily.log"
 DL_VERSION_FILE="${DL_DIR}/.version"
@@ -60,31 +60,22 @@ update_dailylog() {
   sudo /bin/bash -c "$(curl -fsSL "${ML_GIT_INSTALL_SCRIPT}")"
 }
 
-print_status() {
-  echo "basedir: ${DL_DIR}"
-}
-
 print_help() {
   echo -e "
 usage: dailylog <text> [<argument>]
 
-    $(emph "--label") label    The label of the log message.
-    $(emph "--level") level    The level of the log message.
+    $(emph "--label   | -b") label    The label of the log message.
+    $(emph "--level   | -l") level    The level of the log message.
 
-    $(emph "--error")          Sets the level to ERRO.
-    $(emph "--warning")        Sets the level to WARN.
-    $(emph "--info")           Sets the level to INFO.
-    $(emph "--error")          Sets the level to ERRO.
+    $(emph "--l-info    | -li")       Sets the level to INFO.
+    $(emph "--l-warning | -lw")       Sets the level to WARN.
+    $(emph "--l-error   | -le")       Sets the level to ERRO.
 
-    $(emph "--remove | -r")    Removes the dailylog file.
-    $(emph "--status | -s")    Prints status information about the dailylog infrastructure.
-    $(emph "--week")           Shows the weekly log.
-    $(emph "--quite")          Do not print message on console.
-    $(emph "--dry")            Do not write message to files.
-    $(emph "--help | -h")      Prints this help and exists.
-
-example of log message:
-
+    $(emph "--remove  | -r")          Removes the dailylog file.
+    $(emph "--week")                  Shows the weekly log.
+    $(emph "--quite   | -q")          Do not print message on console.
+    $(emph "--dry     | -d")          Do not write message to files.
+    $(emph "--help    | -h")          Prints this help and exists.
 "
 }
 
@@ -93,8 +84,7 @@ if [ "${#}" -eq "0" ]; then
   tail "${DL_DAILY_FILE}" && exit 0
 fi
 
-DL_DATE="$(date '+%Y%m%d %H:%M:%S.%4N')"
-DL_DATE="$(date '+%H:%M:%S.%4N')"
+DL_DATE_FORMAT="+%H:%M:%S.%4N"
 DL_LABEL=""
 DL_LEVEL=""
 DL_ARGUMENTS=""
@@ -114,14 +104,18 @@ while (($# > 0)); do
     DL_LEVEL="${1}"
     shift
     ;;
-  --error | -e)
+  --l-error | -le)
     DL_LEVEL="ERRO"
     ;;
-  --warning | -w)
+  --l-warning | -lw)
     DL_LEVEL="WARN"
     ;;
-  --info | -i)
+  --l-info | -li)
     DL_LEVEL="INFO"
+    ;;
+  --date-format | -df)
+    DL_DATE_FORMAT="${1}"
+    shift
     ;;
   --dry | -d)
     DL_DRY="1"
@@ -138,8 +132,8 @@ while (($# > 0)); do
   --help | -h)
     print_help && exit 0
     ;;
-  --status | -s)
-    print_status && exit 0
+  --update | -u)
+    print_help && exit 0
     ;;
   --version | -v)
     echo -e "version:      ${DL_VERSION}"
@@ -157,6 +151,8 @@ done
 
 # create dailylog file (if not existing)
 [[ -f "${DL_DAILY_FILE}" ]] || create_file "${DL_DAILY_FILE}"
+
+DL_DATE="$(date "${DL_DATE_FORMAT}")"
 
 # build log message
 DL_MESSAGE="${DL_DATE}"

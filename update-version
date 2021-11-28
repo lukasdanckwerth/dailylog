@@ -11,10 +11,6 @@ DL_SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 DL_SCRIPT_NAME="dailylog"
 DL_SCRIPT="${DL_SCRIPT_DIR}/${DL_SCRIPT_NAME}"
 DL_README="${DL_SCRIPT_DIR}/README.md"
-DL_README2="${DL_SCRIPT_DIR}/README2.md"
-
-cp "${DL_README}" "${DL_README2}"
-
 
 emph() {
   echo "\033[1m${*}\033[0m"
