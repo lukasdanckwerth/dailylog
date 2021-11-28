@@ -2,7 +2,7 @@
 set -u
 set -e
 
-DL_VERSION=49
+DL_VERSION=50
 DL_DIR="/var/log/dailylog"
 DL_DAILY_FILE="${DL_DIR}/daily.log"
 DL_VERSION_FILE="${DL_DIR}/.version"
@@ -58,6 +58,7 @@ show_weekly_log() {
 
 update_dailylog() {
   sudo /bin/bash -c "$(curl -fsSL "${DL_GIT_INSTALL_SCRIPT}")"
+  dailylog --version
 }
 
 print_help() {
