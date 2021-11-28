@@ -2,7 +2,7 @@
 set -u
 set -e
 
-DL_VERSION=26
+DL_VERSION=44
 DL_DIR="/var/log/dailylog"
 DL_DAILY_FILE="${DL_DIR}/daily.log"
 DL_VERSION_FILE="${DL_DIR}/.version"
@@ -61,12 +61,11 @@ update_dailylog() {
 }
 
 print_status() {
-
+  echo "basedir: ${DL_DIR}"
 }
 
 print_help() {
   echo -e "
-
 usage: dailylog <text> [<argument>]
 
     $(emph "--label") label    The label of the log message.
@@ -78,6 +77,7 @@ usage: dailylog <text> [<argument>]
     $(emph "--error")          Sets the level to ERRO.
 
     $(emph "--remove | -r")    Removes the dailylog file.
+    $(emph "--status | -s")    Prints status information about the dailylog infrastructure.
     $(emph "--week")           Shows the weekly log.
     $(emph "--quite")          Do not print message on console.
     $(emph "--dry")            Do not write message to files.
@@ -145,7 +145,7 @@ while (($# > 0)); do
     echo -e "version:      ${DL_VERSION}"
     echo -e "local hash:    $(local_version)"
     echo -e "remote hash:    $(remote_version)" && exit 0
-      ;;
+    ;;
   *)
     DL_ARGUMENTS="${DL_ARGUMENTS} ${opt}"
     ;;

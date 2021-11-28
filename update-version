@@ -2,8 +2,26 @@
 set -e
 set -u
 
+# regular expressions
+DL_REGEX_VERSION_TAG="^DL_VERSION=[0-9]{1,20}$"
+DL_REGEX_VERSION="[0-9]{1,20}$"
+
+# receive script
+DL_SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+DL_SCRIPT_NAME="dailylog"
+DL_SCRIPT="${DL_SCRIPT_DIR}/${DL_SCRIPT_NAME}"
+DL_README="${DL_SCRIPT_DIR}/README.md"
+DL_README2="${DL_SCRIPT_DIR}/README2.md"
+
+cp "${DL_README}" "${DL_README2}"
+
+
 emph() {
   echo "\033[1m${*}\033[0m"
+}
+
+random_string() {
+  echo $RANDOM | md5sum | head -c 32
 }
 
 log() {
@@ -17,24 +35,17 @@ die() {
 # check for local changes
 [[ $(git status --porcelain) ]] || die "no changes to commit"
 
-# regular expressions
-DL_REGEX_VERSION_TAG="^DL_VERSION=[0-9]{1,20}$"
-DL_REGEX_VERSION="[0-9]{1,20}$"
-
-# receive script
-DL_SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
-DL_SCRIPT_NAME="dailylog"
-DL_SCRIPT="${DL_SCRIPT_DIR}/${DL_SCRIPT_NAME}"
-
 # validate script
 [[ -f "${DL_SCRIPT}" ]] || (die "ERROR: missing script at ${DL_SCRIPT}.")
 log "script: ${DL_SCRIPT}"
 
 # receive current version
 DL_CURRENT_TAG=$(grep -E "${DL_REGEX_VERSION_TAG}" "${DL_SCRIPT}")
+[[ "${DL_CURRENT_TAG}" == "" ]] && die "ERROR: can't receive version tag."
+
+# for safty check that only one version was found
 DL_TAGS_RESULTS_COUNT=$(echo "${DL_CURRENT_TAG}" | wc -l | xargs echo -n)
 [[ "${DL_TAGS_RESULTS_COUNT}" == "1" ]] || die "ERROR: found more than one (${DL_TAGS_RESULTS_COUNT}) version tag."
-[[ "${DL_CURRENT_TAG}" == "" ]] && die "ERROR: can't receive version tag."
 
 DL_CURRENT_VERSION=$(echo "${DL_CURRENT_TAG}" | grep -o -E "${DL_REGEX_VERSION}")
 [[ "${DL_CURRENT_VERSION}" == "" ]] && die "ERROR: can't receive version."
@@ -49,6 +60,23 @@ DL_CHANGES=$(sed -n "s/${DL_CURRENT_TAG}/${DL_NEW_TAG}/gp" "${DL_SCRIPT}")
 
 # wet sed run
 sed -i "s/${DL_CURRENT_TAG}/${DL_NEW_TAG}/g" "${DL_SCRIPT}"
+
+
+# [[ -f "${DL_README}" ]] || (die "ERROR: missing README.md at ${DL_README}.")
+#
+# DL_HELP_MESSAGE_TEMP_FILE="/tmp/dailylog-$(random_string).txt"
+# DL_HELP_MESSAGE=$("${DL_SCRIPT}" --help)
+# echo -e "[mark-usage-start]::
+# ``shell
+# ${DL_HELP_MESSAGE}
+# ``
+# [mark-usage-end]::" >> "${DL_HELP_MESSAGE_TEMP_FILE}"
+#
+# DL_REGEX_HELP="\[mark-usage-start\]\:\:[\S\s]+\[mark-usage-end\]\:\:"
+# sed -i -e "/${DL_REGEX_HELP}/{r $DL_HELP_MESSAGE_TEMP_FILE" -e "d}" "${DL_README2}"
+#
+# cat "${DL_HELP_MESSAGE_TEMP_FILE}"
+# cat "${DL_README2}"
 
 # exit 0
 #
