@@ -1,0 +1,59 @@
+#!/bin/bash
+set -e
+set -u
+
+emph() {
+  echo "\033[1m${*}\033[0m"
+}
+
+log() {
+  echo -e "[update-version]  ${*}"
+}
+
+die() {
+  log "${*}" && exit 1
+}
+
+# check for local changes
+[[ $(git status --porcelain) ]] || die "no changes to commit"
+
+# regular expressions
+DL_REGEX_VERSION_TAG="^DL_VERSION=[0-9]{1,20}$"
+DL_REGEX_VERSION="[0-9]{1,20}$"
+
+# receive script
+DL_SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+DL_SCRIPT_NAME="dailylog"
+DL_SCRIPT="${DL_SCRIPT_DIR}/${DL_SCRIPT_NAME}"
+
+# validate script
+[[ -f "${DL_SCRIPT}" ]] || (die "ERROR: missing script at ${DL_SCRIPT}.")
+log "script: ${DL_SCRIPT}"
+
+# receive current version
+DL_CURRENT_TAG=$(grep -E "${DL_REGEX_VERSION_TAG}" "${DL_SCRIPT}")
+DL_TAGS_RESULTS_COUNT=$(echo "${DL_CURRENT_TAG}" | wc -l | xargs echo -n)
+[[ "${DL_TAGS_RESULTS_COUNT}" == "1" ]] || die "ERROR: found more than one (${DL_TAGS_RESULTS_COUNT}) version tag."
+[[ "${DL_CURRENT_TAG}" == "" ]] && die "ERROR: can't receive version tag."
+
+DL_CURRENT_VERSION=$(echo "${DL_CURRENT_TAG}" | grep -o -E "${DL_REGEX_VERSION}")
+[[ "${DL_CURRENT_VERSION}" == "" ]] && die "ERROR: can't receive version."
+
+# calculate next version
+DL_NEW_VERSION=$((DL_CURRENT_VERSION + 1))
+DL_NEW_TAG="DL_VERSION=${DL_NEW_VERSION}"
+
+# dry sed run
+DL_CHANGES=$(sed -n "s/${DL_CURRENT_TAG}/${DL_NEW_TAG}/gp" "${DL_SCRIPT}")
+[[ "${DL_NEW_TAG}" == "${DL_CHANGES}" ]] || die "ERROR: changes not as expected. expected: '${DL_NEW_TAG}' after change: '${DL_CHANGES}'"
+
+# wet sed run
+sed -i "s/${DL_CURRENT_TAG}/${DL_NEW_TAG}/g" "${DL_SCRIPT}"
+
+# exit 0
+#
+# git add .
+# git commit -m "version ${DL_NEW_VERSION}"
+# git push
+
+log "new version $(emph "${DL_NEW_VERSION}") (was $(emph "${DL_CURRENT_VERSION}"))" && echo

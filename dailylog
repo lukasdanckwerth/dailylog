@@ -2,87 +2,162 @@
 set -u
 set -e
 
-DL_LOG_DIR="/var/log/dailylog"
+DL_VERSION=24
+DL_DIR="/var/log/dailylog"
+DL_DAILY_FILE="${DL_DIR}/daily.log"
 
-dl_user_name="pi"
-log_dir="/home/${dl_user_name}/log"
-dailylog_file="${log_dir}/daily.log"
-
-# Guards the existence of at least one argument.
-if [ "${#}" -eq "0" ]; then
-   cat "${dailylog_file}"
-   exit 0
-fi
-
-# ===-----------------------------------------------------------------------===
-#
-# Functions
-# ===-----------------------------------------------------------------------===
-create_dir() {
-	local dir_path="${1}"
-	mkdir -p "${dir_path}"
-	chown ${dl_user_name}:${dl_user_name} "${dir_path}"
-	chmod 777 "${dir_path}"
+emph() {
+  echo "\033[1m${*}\033[0m"
 }
 
-create_file() {
-	local file_path=${1}
-	[ -f "${file_path}" ] || touch "${file_path}"
-	chown ${dl_user_name}:${dl_user_name} "${file_path}"
-	chmod 777 "${file_path}"
+die() {
+  echo -e "${*}" && exit 0
 }
 
-recreate_file() {
-	local file_path=${1}
-	rm -rf "${file_path}"
-	create_file "${file_path}"
+die_error() {
+  echo "" && echo -e "$(emph "ERROR:") ${*}" && echo "" && exit 0
+}
+
+year_dir() {
+  echo "${DL_DIR}/$(date +%Y)"
 }
 
 weekly_log_file() {
-	local week=$(date +%V)
-	local year=$(date +%Y)
-	local dir_path="${log_dir}/${year}"
-	create_dir "${dir_path}"
-   chmod 777 "${log_dir}/${year}/${year}-${week}.log"
-	echo "${log_dir}/${year}/${year}-${week}.log"
+  echo "$(year_dir)/$(date +%V).log"
 }
 
-create_dir "${log_dir}"
+create_dir() {
+  [[ -d "${1}" ]] || sudo mkdir -p "${1}"
+  sudo chmod 777 "${1}"
+  echo "create_dir: ${1}"
+}
 
-log_message=""
-while (( $# > 0 ))
-do
-   opt="${1}"; shift
-   case $opt in
-   --label | -b)
-      log_label="${1}"; shift ;;
-   --level | -l)
-		log_level="${1}"; shift ;;
-	--error | -e)
-		log_level="ERRO" ;;
-	--warning | -w)
-		log_level="WARN" ;;
-	--info | -i)
-		log_level="INFO" ;;
-	--remove)
-		recreate_file "${dailylog_file}"; exit 0 ;;
-    *)
-		log_message="${log_message} ${opt}" ;;
-   esac
+create_file() {
+  [[ -f "${1}" ]] || touch "${1}"
+  # chown ${dl_user_name}:${dl_user_name} "${file_path}"
+  # sudo chmod 777 "${1}"
+}
+
+recreate_dailylog() {
+  rm -rf "${DL_DAILY_FILE}" && create_file "${DL_DAILY_FILE}"
+}
+
+show_weekly_log() {
+  local LOG_FILE="$(weekly_log_file)" && echo -e "${LOG_FILE}\n" && tail "${LOG_FILE}"
+}
+
+print_help() {
+  echo -e "
+
+usage: dailylog <text> [<argument>]
+
+    $(emph "--label") label    The label of the log message.
+    $(emph "--level") level    The level of the log message.
+
+    $(emph "--error")          Sets the level to ERRO.
+    $(emph "--warning")        Sets the level to WARN.
+    $(emph "--info")           Sets the level to INFO.
+    $(emph "--error")          Sets the level to ERRO.
+
+    $(emph "--remove | -r")    Removes the dailylog file.
+    $(emph "--week")           Shows the weekly log.
+    $(emph "--quite")          Do not print message on console.
+    $(emph "--dry")            Do not write message to files.
+    $(emph "--help | -h")      Prints this help and exists.
+
+example of log message:
+
+"
+}
+
+if [ "${#}" -eq "0" ]; then
+  [[ -f "${DL_DAILY_FILE}" ]] || die_error "file ${DL_DAILY_FILE} not existing"
+  tail "${DL_DAILY_FILE}" && exit 0
+fi
+
+DL_DATE="$(date '+%Y%m%d %H:%M:%S.%4N')"
+DL_DATE="$(date '+%H:%M:%S.%4N')"
+DL_LABEL=""
+DL_LEVEL=""
+DL_ARGUMENTS=""
+
+DL_QUIET=""
+DL_DRY=""
+
+while (($# > 0)); do
+  opt="${1}"
+  shift
+  case $opt in
+  --label | -b)
+    DL_LABEL="${1}"
+    shift
+    ;;
+  --level | -l)
+    DL_LEVEL="${1}"
+    shift
+    ;;
+  --error | -e)
+    DL_LEVEL="ERRO"
+    ;;
+  --warning | -w)
+    DL_LEVEL="WARN"
+    ;;
+  --info | -i)
+    DL_LEVEL="INFO"
+    ;;
+  --dry | -d)
+    DL_DRY="1"
+    ;;
+  --quite | -q)
+    DL_QUIET="1"
+    ;;
+  --week | -w)
+    show_weekly_log && exit 0
+    ;;
+  --remove | -r)
+    recreate_dailylog && exit 0
+    ;;
+  --help | -h)
+    print_help && exit 0
+    ;;
+  --status | -s)
+    print_status && exit 0
+    ;;
+  *)
+    DL_ARGUMENTS="${DL_ARGUMENTS} ${opt}"
+    ;;
+  esac
 done
 
-if [ -n "${log_label}" ]; then
-	log_message="[${log_label}] : ${log_message}"
-fi
+# create base dir (if not existing)
+[[ -d "${DL_DIR}" ]] || create_dir "${DL_DIR}"
 
-if [ -n "${log_level}" ]; then
-	log_message="[${log_level}] : ${log_message}"
-else
-	log_message="[    ] : ${log_message}"
-fi
+# create dailylog file (if not existing)
+[[ -f "${DL_DAILY_FILE}" ]] || create_file "${DL_DAILY_FILE}"
 
-log_message="$(date '+%Y%m%d %H:%M:%S.%4N') : $log_message"
+# build log message
+DL_MESSAGE="${DL_DATE}"
 
-echo "${log_message}"
-echo "${log_message}" >> "${log_dir}/daily.log"
-echo "${log_message}" >> "$(weekly_log_file)"
+# append label to message
+[[ "${DL_LABEL}" == "" ]] || DL_MESSAGE="${DL_MESSAGE} ::  [${DL_LABEL}]"
+
+[[ "${DL_LEVEL}" == "" ]] && (DL_LEVEL="    ")
+DL_MESSAGE="${DL_MESSAGE} : [${DL_LEVEL}]"
+DL_MESSAGE="${DL_MESSAGE} : ${DL_ARGUMENTS}"
+
+# year directory
+DL_YEAR_DIR="$(year_dir)"
+[[ -d "${DL_YEAR_DIR}" ]] || create_dir "${DL_YEAR_DIR}"
+
+# weekly log
+DL_WEEK_LOG="$(weekly_log_file)"
+[[ -f "${DL_WEEK_LOG}" ]] || create_file "${DL_WEEK_LOG}"
+
+# print message on console (if not set to quite)
+[[ "${DL_QUIET}" == "1" ]] || echo "${DL_MESSAGE}"
+
+# append message to daily log file
+[[ "${DL_DRY}" == "1" ]] || echo "${DL_MESSAGE}" >>"${DL_DAILY_FILE}"
+
+# append message to weekly log file
+[[ "${DL_DRY}" == "1" ]] || echo "${DL_MESSAGE}" >>"${DL_WEEK_LOG}"
