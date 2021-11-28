@@ -42,7 +42,7 @@ if [[ ! "${DL_LOCAL_VER}" == "" ]]; then
   log "NEW:       $(emph "${DL_REMOTE_VER}")" && log ""
   log "Do you want to install the update (y/n)?"
 else
-  log "Are you sure you want to insall dailylog (y/n)?"
+  log "Are you sure you want to install dailylog (y/n)?"
 fi
 
 read -r -p "" IM_INSTALL_CONTROL
