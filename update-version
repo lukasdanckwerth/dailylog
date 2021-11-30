@@ -55,8 +55,7 @@ DL_CHANGES=$(sed -n "s/${DL_CURRENT_TAG}/${DL_NEW_TAG}/gp" "${DL_SCRIPT}")
 [[ "${DL_NEW_TAG}" == "${DL_CHANGES}" ]] || die "ERROR: changes not as expected. expected: '${DL_NEW_TAG}' after change: '${DL_CHANGES}'"
 
 # wet sed run
-sed -i "s/${DL_CURRENT_TAG}/${DL_NEW_TAG}/g" "${DL_SCRIPT}"
-
+sed -i "" "s/${DL_CURRENT_TAG}/${DL_NEW_TAG}/g" "${DL_SCRIPT}"
 
 # [[ -f "${DL_README}" ]] || (die "ERROR: missing README.md at ${DL_README}.")
 #

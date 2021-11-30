@@ -2,7 +2,7 @@
 set -u
 set -e
 
-DL_VERSION=55
+DL_VERSION=56
 DL_DIR="/var/log/dailylog"
 DL_DAILY_FILE="${DL_DIR}/daily.log"
 DL_VERSION_FILE="${DL_DIR}/.version"
@@ -130,7 +130,7 @@ while (($# > 0)); do
   --dry | -d)
     DL_DRY="1"
     ;;
-  --quite | -q)
+  --quiet | -q)
     DL_QUIET="1"
     ;;
   --week | -w)
